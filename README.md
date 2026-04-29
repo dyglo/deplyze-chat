@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="gemma-extruded-app.png" alt="Gemma Chat" width="180" />
+  <img src="gemma-extruded-app.png" alt="Deplyze Chat" width="180" />
 </p>
 
-<h1 align="center">Gemma Chat</h1>
+<h1 align="center">Deplyze Chat</h1>
 
 <p align="center">
   <strong>Vibe code from a desktop app.</strong><br/>
@@ -19,7 +19,7 @@
 
 What if your coding assistant lived in a dedicated desktop app instead of another browser tab?
 
-**Gemma Chat** is an open-source Electron app that uses Gemini API models for chat and coding tasks. You describe what you want to build, and it writes the code — HTML, CSS, JavaScript, multi-file projects — with a live preview that updates as the model types.
+**Deplyze Chat** is an open-source Electron app that uses Gemini API models for chat and coding tasks. You describe what you want to build, and it writes the code — HTML, CSS, JavaScript, multi-file projects — with a live preview that updates as the model types.
 
 It keeps the app shell, workspace, preview server, and local speech-to-text on your machine, while the model itself runs through the Gemini Developer API.
 
