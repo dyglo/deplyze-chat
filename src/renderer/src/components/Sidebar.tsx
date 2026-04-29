@@ -10,6 +10,7 @@ interface Props {
   onSelect: (id: string) => void
   onNew: () => void
   onDelete: (id: string) => void
+  onClose: () => void
 }
 
 export default function Sidebar({
@@ -17,11 +18,23 @@ export default function Sidebar({
   activeId,
   onSelect,
   onNew,
-  onDelete
+  onDelete,
+  onClose
 }: Props) {
   return (
     <div className="drag flex h-full w-60 shrink-0 flex-col border-r border-white/[0.06] bg-black/20">
-      <div className="h-11 shrink-0" />
+      <div className="flex h-11 shrink-0 items-center justify-end px-3">
+        <button
+          onClick={onClose}
+          title="Hide sidebar"
+          className="no-drag flex h-7 w-7 items-center justify-center rounded-md text-ink-400 transition hover:bg-white/5 hover:text-white"
+        >
+          <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <rect x="2" y="3" width="12" height="10" rx="1.5" />
+            <path d="M7 3v10" />
+          </svg>
+        </button>
+      </div>
       <div className="no-drag px-3 pb-3">
         <button
           onClick={onNew}
@@ -66,14 +79,9 @@ export default function Sidebar({
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
             Running locally
           </div>
-          <a
-            href="https://x.com/ammaar"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-ink-400/50 transition hover:text-ink-200"
-          >
-            @ammaar
-          </a>
+          <span className="text-ink-400/50 transition hover:text-ink-200">
+            Tafar
+          </span>
         </div>
       </div>
     </div>

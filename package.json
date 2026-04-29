@@ -1,7 +1,7 @@
 {
   "name": "gemma-chat",
   "version": "0.1.0",
-  "description": "Local AI chat on your Mac, powered by Gemma 3",
+  "description": "AI chat and coding agent powered by the Gemini API",
   "main": "./out/main/index.js",
   "author": "Ammaar",
   "license": "MIT",
@@ -19,6 +19,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^3.0.0",
+    "@google/genai": "^1.17.0",
     "@huggingface/transformers": "^4.1.0",
     "electron-updater": "^6.3.9",
     "highlight.js": "^11.11.1",

@@ -13,10 +13,10 @@ export default function App() {
   const [state, setState] = useState<AppState>({ phase: 'boot' })
 
   useEffect(() => {
-    // Forward raw Gemma output to devtools console for debugging
+    // Forward raw model output to devtools console for debugging
     const rawUnsub = window.api.onRawChunk((ev) => {
       // eslint-disable-next-line no-console
-      console.log('[gemma]', ev.chunk)
+      console.log('[model]', ev.chunk)
     })
     let unsub: (() => void) | undefined
     ;(async () => {
@@ -53,7 +53,7 @@ export default function App() {
         if (hasMLX) {
           setState({
             phase: 'setup',
-            status: { stage: 'starting-mlx', message: 'Starting model runtime…' },
+            status: { stage: 'starting-mlx', message: 'Connecting to Gemini API…' },
             model: DEFAULT_MODEL
           })
           window.api.startSetup(DEFAULT_MODEL)

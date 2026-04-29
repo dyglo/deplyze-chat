@@ -3,15 +3,12 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { AVAILABLE_MODELS } from '@shared/types'
 import {
-  locateMLX,
-  installMLX,
-  startServer,
-  stopServer,
-  hasModel,
+  hasGeminiApiKey,
+  validateGeminiConfig,
   chatStream,
-  listLocalModels,
-  type MLXChatMessage
-} from './mlx'
+  listAvailableModels,
+  type GeminiChatMessage
+} from './gemini'
 import {
   TOOLS,
   chatSystemPrompt,
@@ -81,54 +78,11 @@ function send(channel: string, payload: unknown): void {
   mainWindow?.webContents.send(channel, payload)
 }
 
-let mlxPython: string | null = null
-
-async function ensureMLXRunning(model: string): Promise<string> {
-  let mlx = locateMLX()
-  if (!mlx) {
-    throw new Error(
-      'Python 3.10–3.13 not found. Install via Homebrew: brew install python@3.13'
-    )
-  }
-
-  let pythonToUse = mlx.python
-
-  if (!mlx.installed) {
-    send('setup:status', {
-      stage: 'installing-mlx',
-      message: 'Installing MLX runtime…'
-    })
-    // installMLX creates the venv and returns the venv python path
-    pythonToUse = await installMLX((p) => {
-      send('setup:status', {
-        stage: 'installing-mlx',
-        message: p.message
-      })
-    })
-  }
-
-  mlxPython = pythonToUse
-
-  const label = AVAILABLE_MODELS.find((m) => m.name === model)?.label ?? model
-  send('setup:status', { stage: 'starting-mlx', message: 'Starting model runtime…' })
-  send('setup:status', {
-    stage: 'downloading-model',
-    message: `Loading ${label}… (first run downloads the model)`
-  })
-  await startServer(pythonToUse, model, (p) => {
-    send('setup:status', {
-      stage: 'downloading-model',
-      message: p.message,
-      progress: p.progress
-    })
-  })
-  return pythonToUse
-}
-
 async function handleSetup(model: string): Promise<void> {
   try {
     send('setup:status', { stage: 'checking', message: 'Checking system…' })
-    await ensureMLXRunning(model)
+    send('setup:status', { stage: 'starting-mlx', message: 'Connecting to Gemini API…' })
+    await validateGeminiConfig(model)
     send('setup:status', { stage: 'ready', message: 'Ready to chat.' })
   } catch (e) {
     send('setup:status', {
@@ -158,7 +112,7 @@ async function handleChat(req: ChatRequest, channel: string): Promise<void> {
   const emit = (chunk: StreamChunk): void => send(channel, chunk)
 
   try {
-    const baseMessages: MLXChatMessage[] = []
+    const baseMessages: GeminiChatMessage[] = []
 
     if (req.mode === 'code') {
       const wsPath = await ensureWorkspace(req.conversationId)
@@ -169,7 +123,7 @@ async function handleChat(req: ChatRequest, channel: string): Promise<void> {
     }
 
     for (const m of req.messages) {
-      baseMessages.push({ role: m.role as MLXChatMessage['role'], content: m.content })
+      baseMessages.push({ role: m.role as GeminiChatMessage['role'], content: m.content })
       if (m.toolCalls) {
         for (const tc of m.toolCalls) {
           if (tc.result != null) {
@@ -479,21 +433,11 @@ app.whenReady().then(async () => {
   ipcMain.handle('model:switch', async (_e, model: string) => {
     const label = AVAILABLE_MODELS.find((m) => m.name === model)?.label ?? model
     send('setup:status', {
-      stage: 'downloading-model',
+      stage: 'starting-mlx',
       message: `Switching to ${label}…`
     })
     try {
-      await stopServer()
-      if (!mlxPython) {
-        throw new Error('MLX Python path not available. Please restart the app.')
-      }
-      await startServer(mlxPython, model, (p) => {
-        send('setup:status', {
-          stage: 'downloading-model',
-          message: p.message,
-          progress: p.progress
-        })
-      })
+      await validateGeminiConfig(model)
       send('setup:status', { stage: 'ready', message: 'Ready to chat.' })
     } catch (e) {
       send('setup:status', {
@@ -505,12 +449,11 @@ app.whenReady().then(async () => {
   })
 
   ipcMain.handle('setup:status', async () => {
-    const mlx = locateMLX()
-    return { hasMLX: !!(mlx && mlx.installed) }
+    return { hasMLX: hasGeminiApiKey() }
   })
 
   ipcMain.handle('models:list-local', async () => {
-    return listLocalModels()
+    return listAvailableModels()
   })
 
   ipcMain.handle('chat:send', async (_e, req: ChatRequest) => {
@@ -579,6 +522,5 @@ app.on('window-all-closed', () => {
 })
 
 app.on('before-quit', () => {
-  stopServer()
   stopWorkspaceServer()
 })

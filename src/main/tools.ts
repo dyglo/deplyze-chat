@@ -393,13 +393,13 @@ export function chatSystemPrompt(enableTools: boolean): string {
   const day = new Date().toLocaleDateString('en-US', { weekday: 'long' })
   if (!enableTools) {
     return [
-      "You are Gemma, an AI assistant running 100% locally on the user's Mac.",
+      'You are Gemini, an AI assistant for chat, research, and software work.',
       `Current date/time: ${now} (${day}). Timezone: ${tz()}.`,
       'Be clear, concise, and helpful. Use markdown for formatting when useful.'
     ].join('\n')
   }
   return [
-    "You are Gemma, an AI assistant running 100% locally on the user's Mac.",
+    'You are Gemini, an AI assistant for chat, research, and software work.',
     `Current date/time: ${now} (${day}). Timezone: ${tz()}.`,
     '',
     'TOOL USE',
@@ -427,7 +427,7 @@ export function codeSystemPrompt(workspacePath: string, previewHref: string): st
   const now = new Date().toISOString()
   const day = new Date().toLocaleDateString('en-US', { weekday: 'long' })
   return [
-    "You are Gemma, a local coding agent running entirely on the user's Mac.",
+    'You are Gemini, a coding agent that writes and edits files in the provided workspace.',
     `Date: ${now} (${day}). Workspace: ${workspacePath}. Preview: ${previewHref}`,
     '',
     'WHAT TO BUILD',

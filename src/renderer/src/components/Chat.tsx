@@ -63,6 +63,7 @@ export default function Chat({ model, onSwitchModel }: Props) {
   })
   const [activeId, setActiveId] = useState<string>(() => conversations[0].id)
   const [streaming, setStreaming] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const streamRef = useRef<{ abort: boolean }>({ abort: false })
 
   const activeConversation = useMemo(
@@ -229,14 +230,18 @@ export default function Chat({ model, onSwitchModel }: Props) {
 
   return (
     <div className="flex h-full w-full">
-      <Sidebar
-        conversations={conversations}
-        activeId={activeId}
-        onSelect={setActiveId}
-        onNew={() => createConversation(activeConversation.mode)}
-        onDelete={deleteConversation}
-      />
+      {sidebarOpen ? (
+        <Sidebar
+          conversations={conversations}
+          activeId={activeId}
+          onSelect={setActiveId}
+          onNew={() => createConversation(activeConversation.mode)}
+          onDelete={deleteConversation}
+          onClose={() => setSidebarOpen(false)}
+        />
+      ) : null}
       <div className="flex min-w-0 flex-1">
+        {!sidebarOpen && <CollapsedSidebar onOpen={() => setSidebarOpen(true)} />}
         <div className="flex min-w-0 flex-1 flex-col">
           <Header
             model={model}
@@ -274,6 +279,27 @@ export default function Chat({ model, onSwitchModel }: Props) {
         )}
       </div>
     </div>
+  )
+}
+
+function CollapsedSidebar({ onOpen }: { onOpen: () => void }) {
+  return (
+    <button
+      onClick={onOpen}
+      title="Show sidebar"
+      className="no-drag absolute left-3 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-md text-ink-400 transition hover:bg-white/5 hover:text-white"
+    >
+      <svg
+        viewBox="0 0 16 16"
+        className="h-3.5 w-3.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      >
+        <rect x="2" y="3" width="12" height="10" rx="1.5" />
+        <path d="M7 3v10" />
+      </svg>
+    </button>
   )
 }
 
